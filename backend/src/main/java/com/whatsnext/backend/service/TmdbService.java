@@ -1,0 +1,54 @@
+package com.whatsnext.backend.service;
+
+import com.whatsnext.backend.dto.TmdbPopularResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+@Service
+public class TmdbService {
+
+    private final RestClient restClient;
+    private final String apiKey;
+
+    public TmdbService(
+            RestClient.Builder builder,
+            @Value("${tmdb.api.key}") String apiKey
+    ) {
+        this.restClient = builder
+                .baseUrl("https://api.themoviedb.org/3")
+                .build();
+        this.apiKey = apiKey;
+    }
+
+    public TmdbPopularResponse buscarFilmesPopulares(int page) {
+        return restClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/movie/popular")
+                        .queryParam("api_key", apiKey)
+                        .queryParam("page", page)
+                        .queryParam("language", "pt-BR")
+                        .build())
+                .retrieve()
+                .body(TmdbPopularResponse.class);
+    }
+
+    public TmdbPopularResponse buscarPorTitulo(String titulo) {
+        return restClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/search/movie")
+                        .queryParam("api_key", apiKey)
+                        .queryParam("language", "pt-BR")
+                        .queryParam("query", titulo)
+                        .build())
+                .retrieve()
+                .body(TmdbPopularResponse.class);
+    }
+
+
+}
