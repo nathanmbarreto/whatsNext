@@ -47,4 +47,9 @@ public class MediaController {
     public void excluir(@PathVariable Long id) {
         mediaService.excluir(id);
     }
+
+    @PostMapping("/tmdb/{tmdbId}")
+    public Media importarDoTmdb(@PathVariable Long tmdbId) {
+        return mediaService.salvarDoTmdb(tmdbId);
+    }
 }

@@ -1,5 +1,6 @@
 package com.whatsnext.backend.service;
 
+import com.whatsnext.backend.dto.TmdbMovie;
 import com.whatsnext.backend.dto.TmdbPopularResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -38,17 +39,27 @@ public class TmdbService {
                 .body(TmdbPopularResponse.class);
     }
 
-    public TmdbPopularResponse buscarPorTitulo(String titulo) {
+    public TmdbPopularResponse buscarPorTitulo(String titulo, int page) {
         return restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/search/movie")
                         .queryParam("api_key", apiKey)
                         .queryParam("language", "pt-BR")
                         .queryParam("query", titulo)
+                        .queryParam("page", page)
                         .build())
                 .retrieve()
                 .body(TmdbPopularResponse.class);
     }
 
-
+    public TmdbMovie consultarDetalhes(Long id){
+        return restClient.get()
+                .uri( uriBuilder -> uriBuilder
+                        .path("/movie/{id}")
+                        .queryParam("api_key", apiKey)
+                        .queryParam("language", "pt-BR")
+                        .build(id))
+                .retrieve()
+                .body(TmdbMovie.class);
+    }
 }
