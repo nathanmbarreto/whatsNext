@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
@@ -111,7 +112,15 @@ public class MediaService {
             return existente.get();
         }
 
-        TmdbMovie filme = tmdbService.consultarDetalhes(tmdbId);
+        TmdbMovie filme;
+        try {
+        filme= tmdbService.consultarDetalhes(tmdbId);
+        } catch(HttpClientErrorException.NotFound e) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Filme não encontrado no TMDB."
+            );
+        }
+
         Media novaMedia = transformarEmMedia(filme);
 
         return mediaRepository.save(novaMedia);
