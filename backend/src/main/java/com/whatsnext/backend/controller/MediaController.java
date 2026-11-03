@@ -4,11 +4,11 @@ import com.whatsnext.backend.dto.MediaDetailsResponse;
 import com.whatsnext.backend.dto.MediaSummaryResponse;
 import com.whatsnext.backend.entity.Media;
 import com.whatsnext.backend.service.MediaService;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/medias")
@@ -20,8 +20,8 @@ public class MediaController {
     }
 
     @GetMapping
-    public List<MediaSummaryResponse> listarTodas() {
-        return mediaService.listarTodos();
+    public Page<MediaSummaryResponse> listarTodas(@RequestParam(required = false) String type, Pageable pageable) {
+        return mediaService.listarTodos(type, pageable);
     }
 
     @PostMapping
@@ -48,5 +48,10 @@ public class MediaController {
     @PostMapping("/tmdb/{tmdbId}")
     public Media importarDoTmdb(@PathVariable Long tmdbId) {
         return mediaService.salvarDoTmdb(tmdbId);
+    }
+
+    @GetMapping("/search")
+    public List<MediaSummaryResponse> buscarPorTitulo(@RequestParam("title") String title, @RequestParam(value = "type", required = false) String type) {
+        return mediaService.buscarPorTitulo(title, type);
     }
 }
