@@ -22,6 +22,7 @@ public class Genre {
     private String source;
     private Long externalId;
 
+
     @ManyToMany(mappedBy = "genres")
     private Set<Media> medias = new HashSet<>();
 

@@ -1,11 +1,14 @@
 package com.whatsnext.backend.dto;
 
+import java.util.List;
+
 public class TmdbMovie {
     private Long id;
     private String title;
     private String overview;
     private String release_date;
     private String poster_path;
+    private List<TmdbGenre> genres;
 
     public TmdbMovie() {
     }
@@ -48,5 +51,13 @@ public class TmdbMovie {
 
     public void setPoster_path(String poster_path) {
         this.poster_path = poster_path;
+    }
+
+    public List<TmdbGenre> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(List<TmdbGenre> genres) {
+        this.genres = genres;
     }
 }

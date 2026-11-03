@@ -1,5 +1,7 @@
 package com.whatsnext.backend.controller;
 
+import com.whatsnext.backend.dto.MediaDetailsResponse;
+import com.whatsnext.backend.dto.MediaSummaryResponse;
 import com.whatsnext.backend.entity.Media;
 import com.whatsnext.backend.service.MediaService;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,7 @@ public class MediaController {
     }
 
     @GetMapping
-    public List<Media> listarTodas() {
+    public List<MediaSummaryResponse> listarTodas() {
         return mediaService.listarTodos();
     }
 
@@ -29,13 +31,8 @@ public class MediaController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Media> buscarPorId(@PathVariable Long id) {
-        Optional<Media> resultado = mediaService.buscarPorId(id);
-
-        if (resultado.isPresent()) {
-            return ResponseEntity.ok(resultado.get());
-        }
-        return ResponseEntity.notFound().build();
+    public MediaDetailsResponse buscarPorId(@PathVariable Long id) {
+        return mediaService.buscarDetalhesPorId(id);
     }
 
     @PutMapping("/{id}")

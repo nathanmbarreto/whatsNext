@@ -1,33 +1,59 @@
 package com.whatsnext.backend.service;
 
+import com.whatsnext.backend.dto.MediaDetailsResponse;
+import com.whatsnext.backend.dto.MediaSummaryResponse;
+import com.whatsnext.backend.dto.TmdbGenre;
 import com.whatsnext.backend.dto.TmdbMovie;
+import com.whatsnext.backend.entity.Genre;
 import com.whatsnext.backend.entity.Media;
+import com.whatsnext.backend.repository.GenreRepository;
 import com.whatsnext.backend.repository.MediaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class MediaService {
     private final MediaRepository mediaRepository;
     private final TmdbService tmdbService;
+    private final GenreRepository genreRepository;
 
-    public MediaService(MediaRepository mediaRepository, TmdbService tmdbService) {
+    public MediaService(MediaRepository mediaRepository, TmdbService tmdbService, GenreRepository genreRepository) {
         this.mediaRepository = mediaRepository;
         this.tmdbService = tmdbService;
+        this.genreRepository = genreRepository;
     }
 
+    @Transactional(readOnly = true)
+    public List<MediaSummaryResponse> listarTodos() {
+        return mediaRepository.findAll().stream()
+                .map(media -> {
+                    MediaSummaryResponse resumo = new MediaSummaryResponse();
+                    resumo.setId(media.getId());
+                    resumo.setPosterUrl(media.getPosterUrl());
+                    if (media.getReleaseDate() == null) {
+                        resumo.setReleaseDate(null);
+                    } else {
+                        resumo.setReleaseDate(media.getReleaseDate().toString());
+                    }
+                    resumo.setTitle(media.getTitle());
 
-    public List<Media> listarTodos() {
-        return mediaRepository.findAll();
+                    List<String> nomesGeneros = media.getGenres().stream()
+                            .map(genre -> genre.getName())
+                            .toList();
+                    resumo.setGenres(nomesGeneros);
+                    return resumo;
+                })
+                .toList();
     }
 
     @Transactional
@@ -79,8 +105,8 @@ public class MediaService {
         mediaRepository.deleteById(id);
     }
 
-    private Media transformarEmMedia(TmdbMovie filme) {
-        Media media = new Media();
+    private Media preencherMedia(Media media, TmdbMovie filme) {
+
         media.setExternalId(String.valueOf(filme.getId()));
         media.setSource("TMDB");
         media.setType("MOVIE");
@@ -98,6 +124,14 @@ public class MediaService {
         }
         media.setLastSyncedAt(LocalDateTime.now());
 
+        Set<Genre> generos = new HashSet<>();
+        if (filme.getGenres() != null) {
+            for (TmdbGenre tmdbGenre : filme.getGenres()) {
+                generos.add(buscarOuCriar(tmdbGenre));
+            }
+        }
+        media.setGenres(generos);
+
         return media;
     }
 
@@ -107,23 +141,63 @@ public class MediaService {
                         String.valueOf(tmdbId),
                         "TMDB"
                 );
-
+        Media media;
         if (existente.isPresent()) {
-            return existente.get();
+            media = existente.get();
+        } else {
+            media = new Media();
         }
 
         TmdbMovie filme;
         try {
-        filme= tmdbService.consultarDetalhes(tmdbId);
-        } catch(HttpClientErrorException.NotFound e) {
+            filme = tmdbService.consultarDetalhes(tmdbId);
+        } catch (HttpClientErrorException.NotFound e) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Filme não encontrado no TMDB."
             );
         }
 
-        Media novaMedia = transformarEmMedia(filme);
-
-        return mediaRepository.save(novaMedia);
+        preencherMedia(media, filme);
+        return mediaRepository.save(media);
     }
 
+    private Genre buscarOuCriar(TmdbGenre tmdbGenre) {
+        Optional<Genre> existente =
+                genreRepository.findByExternalIdAndSource(
+                        tmdbGenre.getId(), "TMDB");
+
+        if (existente.isPresent()) {
+            return existente.get();
+        }
+
+        Genre genre = new Genre();
+
+        genre.setExternalId(tmdbGenre.getId());
+        genre.setName(tmdbGenre.getName());
+        genre.setSource("TMDB");
+
+        return genreRepository.save(genre);
+    }
+
+    @Transactional(readOnly = true)
+    public MediaDetailsResponse buscarDetalhesPorId(Long id) {
+        Media media = buscarPorId(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Mídia não encontrada"));
+
+        MediaDetailsResponse novaMedia = new MediaDetailsResponse();
+        novaMedia.setId(media.getId());
+        novaMedia.setTitle(media.getTitle());
+        novaMedia.setPosterUrl(media.getPosterUrl());
+        if(media.getReleaseDate()== null) {novaMedia.setReleaseDate(null);}
+            else{novaMedia.setReleaseDate(media.getReleaseDate().toString());
+            }
+        novaMedia.setOverview(media.getOverview());
+        List<String> nomeGeneros = media.getGenres().stream()
+                .map(genre -> genre.getName())
+                .toList();
+        novaMedia.setGenres(nomeGeneros);
+
+        return novaMedia;
+    }
 }
