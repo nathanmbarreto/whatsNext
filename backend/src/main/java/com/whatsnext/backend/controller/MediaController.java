@@ -31,14 +31,14 @@ public class MediaController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "title,asc") String sort,
-            @RequestParam(value = "genre", required = false)
-            String genre
+            @RequestParam(value = "genreId", required = false)
+            Long genreId
     ) {
 
         Pageable pageable = criarPageable(page, size, sort);
 
 
-        return mediaService.listarTodos(type, genre, pageable);
+        return mediaService.listarTodos(type, genreId, pageable);
     }
 
 
@@ -75,10 +75,10 @@ public class MediaController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "title,asc") String sort,
-            @RequestParam(value = "genre", required = false) String genre
+            @RequestParam(value = "genreId", required = false) Long genreId
     ) {
         Pageable pageable = criarPageable(page, size, sort);
-        return mediaService.buscarPorTitulo(title, type, genre, pageable);
+        return mediaService.buscarPorTitulo(title, type, genreId, pageable);
     }
 
     private Pageable criarPageable(int page, int size, String sort) {

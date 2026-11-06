@@ -3,13 +3,8 @@ package com.whatsnext.backend.service;
 import com.whatsnext.backend.dto.TmdbMovie;
 import com.whatsnext.backend.dto.TmdbPopularResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 @Service
 public class TmdbService {

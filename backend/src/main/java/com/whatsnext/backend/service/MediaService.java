@@ -36,24 +36,24 @@ public class MediaService {
     }
 
     @Transactional(readOnly = true)
-    public Page<MediaSummaryResponse> listarTodos(String type, String genre, Pageable pageable) {
-
-    Page<Media> pagina = buscarPorFiltros(type, genre, pageable);
+    public Page<MediaSummaryResponse> listarTodos(String type, Long genreId, Pageable pageable) {
+    validarGenreId(genreId);
+    Page<Media> pagina = buscarPorFiltros(type, genreId, pageable);
         return pagina.map(this::converterParaResumo);
 
     }
 
-    private Page<Media> buscarPorFiltros(String type, String genre, Pageable pageable){
+    private Page<Media> buscarPorFiltros(String type, Long genreId, Pageable pageable){
         Page<Media> pagina;
         boolean temType = type != null && !type.isBlank();
-        boolean temGenre = genre != null && !genre.isBlank();
+        boolean temGenreId = genreId != null;
 
-        if (temType && !temGenre) {
+        if (temType && !temGenreId) {
             pagina = mediaRepository.findByType(type, pageable);
-        } else if (temGenre && !temType) {
-            pagina = mediaRepository.findDistinctByGenres_NameIgnoreCase(genre, pageable);
-        } else if (temGenre && temType) {
-            pagina = mediaRepository.findDistinctByTypeAndGenres_NameIgnoreCase(type, genre, pageable);
+        } else if (temGenreId && !temType) {
+            pagina = mediaRepository.findDistinctByGenres_Id(genreId, pageable);
+        } else if (temGenreId && temType) {
+            pagina = mediaRepository.findDistinctByTypeAndGenres_Id(type, genreId, pageable);
         } else {
             pagina = mediaRepository.findAll(pageable);
         }
@@ -62,24 +62,26 @@ public class MediaService {
     }
 
     @Transactional(readOnly = true)
-    public Page<MediaSummaryResponse> buscarPorTitulo(String title, String type, String genre, Pageable pageable) {
+    public Page<MediaSummaryResponse> buscarPorTitulo(String title, String type, Long genreId, Pageable pageable) {
         if (title == null || title.isBlank()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Titulo é obrigatório.");
         }
+        validarGenreId(genreId);
+
         boolean temType = type != null && !type.isBlank();
-        boolean temGenre = genre != null && !genre.isBlank();
+        boolean temGenreId = genreId != null;
 
         Page<Media> medias;
 
-        if (!temType && !temGenre) {
+        if (!temType && !temGenreId) {
             medias = mediaRepository.findByTitleContainingIgnoreCase(title, pageable);
-        } else  if (temType && !temGenre){
+        } else  if (temType && !temGenreId){
             medias = mediaRepository.findByTitleContainingIgnoreCaseAndType(title, type, pageable);
-        }else  if (!temType && temGenre){
-            medias = mediaRepository.findDistinctByTitleContainingIgnoreCaseAndGenres_NameIgnoreCase(title, genre, pageable);
+        }else  if (!temType && temGenreId){
+            medias = mediaRepository.findDistinctByTitleContainingIgnoreCaseAndGenres_Id(title, genreId, pageable);
         } else {
-            medias = mediaRepository.findDistinctByTitleContainingIgnoreCaseAndGenres_NameIgnoreCaseAndType(title, genre, type, pageable);
+            medias = mediaRepository.findDistinctByTitleContainingIgnoreCaseAndTypeAndGenres_Id(title, type, genreId, pageable);
         }
 
         return medias
@@ -252,6 +254,14 @@ public class MediaService {
         novaMedia.setGenres(nomeGeneros);
 
         return novaMedia;
+    }
+
+    private void validarGenreId(Long genreId) {
+        if(genreId != null && genreId < 1){
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "O ID do gênero deve ser positivo.."
+            );
+        }
     }
 
 }
