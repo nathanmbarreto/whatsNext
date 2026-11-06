@@ -36,30 +36,54 @@ public class MediaService {
     }
 
     @Transactional(readOnly = true)
-    public Page<MediaSummaryResponse> listarTodos(String type, Pageable pageable) {
-        Page<Media> pagina;
-        if (type == null || type.isBlank()) {
-            pagina = mediaRepository.findAll(pageable);
-        } else {
-            pagina = mediaRepository.findByType(type, pageable);
-        }
+    public Page<MediaSummaryResponse> listarTodos(String type, String genre, Pageable pageable) {
 
+    Page<Media> pagina = buscarPorFiltros(type, genre, pageable);
         return pagina.map(this::converterParaResumo);
 
     }
 
-    @Transactional(readOnly = true)
-    public List<MediaSummaryResponse> buscarPorTitulo(String title, String type) {
-        List<Media> medias;
-        if (type == null || type.isBlank()) {
-            medias = mediaRepository.findByTitleContainingIgnoreCase(title);
+    private Page<Media> buscarPorFiltros(String type, String genre, Pageable pageable){
+        Page<Media> pagina;
+        boolean temType = type != null && !type.isBlank();
+        boolean temGenre = genre != null && !genre.isBlank();
+
+        if (temType && !temGenre) {
+            pagina = mediaRepository.findByType(type, pageable);
+        } else if (temGenre && !temType) {
+            pagina = mediaRepository.findDistinctByGenres_NameIgnoreCase(genre, pageable);
+        } else if (temGenre && temType) {
+            pagina = mediaRepository.findDistinctByTypeAndGenres_NameIgnoreCase(type, genre, pageable);
         } else {
-            medias = mediaRepository.findByTitleContainingIgnoreCaseAndType(title, type);
+            pagina = mediaRepository.findAll(pageable);
         }
 
-        return medias.stream()
-                .map(this::converterParaResumo)
-                .toList();
+        return pagina;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<MediaSummaryResponse> buscarPorTitulo(String title, String type, String genre, Pageable pageable) {
+        if (title == null || title.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Titulo é obrigatório.");
+        }
+        boolean temType = type != null && !type.isBlank();
+        boolean temGenre = genre != null && !genre.isBlank();
+
+        Page<Media> medias;
+
+        if (!temType && !temGenre) {
+            medias = mediaRepository.findByTitleContainingIgnoreCase(title, pageable);
+        } else  if (temType && !temGenre){
+            medias = mediaRepository.findByTitleContainingIgnoreCaseAndType(title, type, pageable);
+        }else  if (!temType && temGenre){
+            medias = mediaRepository.findDistinctByTitleContainingIgnoreCaseAndGenres_NameIgnoreCase(title, genre, pageable);
+        } else {
+            medias = mediaRepository.findDistinctByTitleContainingIgnoreCaseAndGenres_NameIgnoreCaseAndType(title, genre, type, pageable);
+        }
+
+        return medias
+                .map(this::converterParaResumo);
     }
 
     private MediaSummaryResponse converterParaResumo(Media media) {
