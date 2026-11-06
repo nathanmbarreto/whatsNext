@@ -8,6 +8,8 @@ import com.whatsnext.backend.entity.Genre;
 import com.whatsnext.backend.entity.Media;
 import com.whatsnext.backend.repository.GenreRepository;
 import com.whatsnext.backend.repository.MediaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,27 +36,76 @@ public class MediaService {
     }
 
     @Transactional(readOnly = true)
-    public List<MediaSummaryResponse> listarTodos() {
-        return mediaRepository.findAll().stream()
-                .map(media -> {
-                    MediaSummaryResponse resumo = new MediaSummaryResponse();
-                    resumo.setId(media.getId());
-                    resumo.setPosterUrl(media.getPosterUrl());
-                    if (media.getReleaseDate() == null) {
-                        resumo.setReleaseDate(null);
-                    } else {
-                        resumo.setReleaseDate(media.getReleaseDate().toString());
-                    }
-                    resumo.setTitle(media.getTitle());
+    public Page<MediaSummaryResponse> listarTodos(String type, String genre, Pageable pageable) {
 
-                    List<String> nomesGeneros = media.getGenres().stream()
-                            .map(genre -> genre.getName())
-                            .toList();
-                    resumo.setGenres(nomesGeneros);
-                    return resumo;
-                })
-                .toList();
+    Page<Media> pagina = buscarPorFiltros(type, genre, pageable);
+        return pagina.map(this::converterParaResumo);
+
     }
+
+    private Page<Media> buscarPorFiltros(String type, String genre, Pageable pageable){
+        Page<Media> pagina;
+        boolean temType = type != null && !type.isBlank();
+        boolean temGenre = genre != null && !genre.isBlank();
+
+        if (temType && !temGenre) {
+            pagina = mediaRepository.findByType(type, pageable);
+        } else if (temGenre && !temType) {
+            pagina = mediaRepository.findDistinctByGenres_NameIgnoreCase(genre, pageable);
+        } else if (temGenre && temType) {
+            pagina = mediaRepository.findDistinctByTypeAndGenres_NameIgnoreCase(type, genre, pageable);
+        } else {
+            pagina = mediaRepository.findAll(pageable);
+        }
+
+        return pagina;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<MediaSummaryResponse> buscarPorTitulo(String title, String type, String genre, Pageable pageable) {
+        if (title == null || title.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Titulo é obrigatório.");
+        }
+        boolean temType = type != null && !type.isBlank();
+        boolean temGenre = genre != null && !genre.isBlank();
+
+        Page<Media> medias;
+
+        if (!temType && !temGenre) {
+            medias = mediaRepository.findByTitleContainingIgnoreCase(title, pageable);
+        } else  if (temType && !temGenre){
+            medias = mediaRepository.findByTitleContainingIgnoreCaseAndType(title, type, pageable);
+        }else  if (!temType && temGenre){
+            medias = mediaRepository.findDistinctByTitleContainingIgnoreCaseAndGenres_NameIgnoreCase(title, genre, pageable);
+        } else {
+            medias = mediaRepository.findDistinctByTitleContainingIgnoreCaseAndGenres_NameIgnoreCaseAndType(title, genre, type, pageable);
+        }
+
+        return medias
+                .map(this::converterParaResumo);
+    }
+
+    private MediaSummaryResponse converterParaResumo(Media media) {
+
+        MediaSummaryResponse resumo = new MediaSummaryResponse();
+        resumo.setId(media.getId());
+        resumo.setPosterUrl(media.getPosterUrl());
+        if (media.getReleaseDate() == null) {
+            resumo.setReleaseDate(null);
+        } else {
+            resumo.setReleaseDate(media.getReleaseDate().toString());
+        }
+        resumo.setTitle(media.getTitle());
+
+        List<String> nomesGeneros = media.getGenres().stream()
+                .map(genre -> genre.getName())
+                .toList();
+        resumo.setGenres(nomesGeneros);
+
+        return resumo;
+    }
+
 
     @Transactional
     public Media salvar(Media media) {
@@ -189,9 +240,11 @@ public class MediaService {
         novaMedia.setId(media.getId());
         novaMedia.setTitle(media.getTitle());
         novaMedia.setPosterUrl(media.getPosterUrl());
-        if(media.getReleaseDate()== null) {novaMedia.setReleaseDate(null);}
-            else{novaMedia.setReleaseDate(media.getReleaseDate().toString());
-            }
+        if (media.getReleaseDate() == null) {
+            novaMedia.setReleaseDate(null);
+        } else {
+            novaMedia.setReleaseDate(media.getReleaseDate().toString());
+        }
         novaMedia.setOverview(media.getOverview());
         List<String> nomeGeneros = media.getGenres().stream()
                 .map(genre -> genre.getName())
@@ -200,4 +253,5 @@ public class MediaService {
 
         return novaMedia;
     }
+
 }
