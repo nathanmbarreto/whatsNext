@@ -36,5 +36,19 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
             String title, String genreName, String type, Pageable pageable
     );
 
+    Page<Media> findDistinctByGenres_Id(Long genreId, Pageable pageable);
+
+    Page<Media> findDistinctByTypeAndGenres_Id(
+            String type, Long genreId, Pageable pageable
+    );
+
+    Page<Media> findDistinctByTitleContainingIgnoreCaseAndGenres_Id(
+            String title, Long genreId, Pageable pageable
+    );
+
+    Page<Media> findDistinctByTitleContainingIgnoreCaseAndTypeAndGenres_Id(
+            String title, String type, Long genreId, Pageable pageable
+    );
+
 }
 
