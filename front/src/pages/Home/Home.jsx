@@ -150,7 +150,7 @@ export default function Home() {
       </section>
 
       <FeaturedGrid />
-      <GamesGrid page={1} pageSize={5} period="recent" />
+      {/* <GamesGrid page={1} pageSize={5} period="recent" /> */}
     </>
   );
 }

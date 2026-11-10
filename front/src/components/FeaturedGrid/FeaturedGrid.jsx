@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
-  discoverMovies,
+  getPopularMovies,
   discoverSeries,
 } from "../../services/tmdb";
 
@@ -24,21 +24,20 @@ export default function FeaturedGrid({ type = "all" }) {
         let results = [];
 
         if (type === "movie" || type === "all") {
-          const data = await discoverMovies({
-            sort_by: "popularity.desc",
-            include_adult: "false",
-            page: "1",
-          });
+          
+          const data = await getPopularMovies(1);
 
           results.push(
-            ...(data.results || []).map((item) => ({
+            ...data.map((item) => ({
               ...item,
+              poster_path: item.posterPath,
               mediaType: "movie",
               displayTitle: item.title,
-              displayDate: item.release_date,
+              displayDate: null,
             }))
           );
         }
+
 
         if (type === "series" || type === "all") {
           const data = await discoverSeries({

@@ -16,7 +16,24 @@ public class AppUser {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
+    @Column(nullable = false)
+    private String passwordHash;
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
     protected AppUser() {
+    }
+
+    public AppUser(String name, String email, String passwordHash) {
+        this.name = name;
+        this.email = email;
+        this.passwordHash = passwordHash;
     }
 
     public Long getId() {

@@ -46,7 +46,9 @@ public class TmdbController {
                movie.getTitle(),
                movie.getOverview(),
                movie.getPoster_path(),
-               movie.getRelease_date()
+               movie.getRelease_date(),
+               movie.getNotaTmdb(),
+               movie.getGenres()
        );
     }
 }

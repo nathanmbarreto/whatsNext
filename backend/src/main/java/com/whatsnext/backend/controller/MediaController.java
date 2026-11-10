@@ -12,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/medias")
@@ -90,7 +88,7 @@ public class MediaController {
 
         if (size < 1 || size > MAX_PAGE_SIZE) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "O tamanho da página deve ser maior que zero e menor que " + MAX_PAGE_SIZE + "."
+                    HttpStatus.BAD_REQUEST, "O tamanho da página deve ser maior que zero e até " + MAX_PAGE_SIZE + "."
             );
         }
 
