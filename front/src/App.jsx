@@ -29,10 +29,10 @@ function App() {
             element={<Series />}
             />
          
-            <Route
+            {/* <Route
               path="/games"
               element={<Games />}
-            />
+            /> */}
             <Route
               path="/detalhes/:type/:id"
               element={<Details />}

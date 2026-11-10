@@ -1,5 +1,7 @@
 package com.whatsnext.backend.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class TmdbMovie {
@@ -9,6 +11,10 @@ public class TmdbMovie {
     private String release_date;
     private String poster_path;
     private List<TmdbGenre> genres;
+
+    @JsonProperty("vote_average")
+    private Double notaTmdb;
+
 
     public TmdbMovie() {
     }
@@ -59,5 +65,13 @@ public class TmdbMovie {
 
     public void setGenres(List<TmdbGenre> genres) {
         this.genres = genres;
+    }
+
+    public Double getNotaTmdb() {
+        return notaTmdb;
+    }
+
+    public void setNotaTmdb(Double notaTmdb) {
+        this.notaTmdb = notaTmdb;
     }
 }

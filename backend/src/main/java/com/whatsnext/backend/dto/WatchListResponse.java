@@ -1,14 +1,18 @@
 package com.whatsnext.backend.dto;
 
 
+import com.whatsnext.backend.entity.WatchStatus;
+
 public class WatchListResponse {
     private Long watchListItemId;
     private Long mediaId;
     private String title;
     private String posterUrl;
     private String releaseDate;
+    private WatchStatus status;
 
-    public WatchListResponse() {}
+    public WatchListResponse() {
+    }
 
     public Long getWatchListItemId() {
         return watchListItemId;
@@ -48,5 +52,13 @@ public class WatchListResponse {
 
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public WatchStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(WatchStatus status) {
+        this.status = status;
     }
 }

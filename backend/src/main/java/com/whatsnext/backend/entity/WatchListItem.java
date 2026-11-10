@@ -20,6 +20,11 @@ public class WatchListItem {
     @JoinColumn(name = "media_id", nullable = false)
     private Media media;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private WatchStatus status = WatchStatus.PLANNED;
+
+
     protected WatchListItem() {
     }
 
@@ -38,5 +43,13 @@ public class WatchListItem {
 
     public Media getMedia() {
         return media;
+    }
+
+    public WatchStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(WatchStatus status) {
+        this.status = status;
     }
 }
