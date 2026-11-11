@@ -1,20 +1,75 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { sair } from "../../services/auth";
 
 const links = [
   { label: "Início", to: "/", end: true },
   { label: "Filmes", to: "/movies" },
   { label: "Séries", to: "/series" },
   // { label: "Jogos", to: "/games" },
-  { label: "Login", to: "/login" },
 ];
+
+
+function UserDropdown({ user, onLogout, onNavigate }) {
+  const [open, setOpen] = useState(false);
+
+  function fecharMenu() {
+    setOpen(false);
+    onNavigate?.();
+  }
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((atual) => !atual)}
+        className="rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-white/5"
+      >
+        Olá, {user.name} <span aria-hidden="true">⌄</span>
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border border-white/10 bg-[#20232E] p-2 shadow-xl"
+        >
+          <NavLink
+            to="/watchlist"
+            role="menuitem"
+            onClick={fecharMenu}
+            className="block rounded-lg px-3 py-2 text-sm text-gray-200 hover:bg-white/10"
+          >
+            Minha Lista
+          </NavLink>
+
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              fecharMenu();
+              onLogout();
+            }}
+            className="w-full rounded-lg px-3 py-2 text-left text-sm text-gray-200 hover:bg-white/10"
+          >
+            Sair
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchType, setSearchType] = useState("movie");
+
+
 
   function handleSearch(event) {
     event.preventDefault();
@@ -31,7 +86,40 @@ export default function Header() {
     setMenuOpen(false);
   }
 
+  async function handleLogout() {
+    try {
+      await sair();
+      setUser(null);
+      setMenuOpen(false);
+      navigate("/login", { replace: true });
+    } catch (err) {
+      console.error("Erro ao sair:", err);
+    }
+  }
 
+  useEffect(() => {
+    async function carregarUsuario() {
+      try {
+        const response = await fetch(
+          "http://localhost:8080/api/users/me",
+          { credentials: "include" }
+        );
+
+        const contentType = response.headers.get("content-type") || "";
+
+        if (!response.ok || !contentType.includes("application/json")) {
+          setUser(null);
+          return;
+        }
+
+        setUser(await response.json());
+      } catch {
+        setUser(null);
+      }
+    }
+
+    carregarUsuario();
+  }, []);
 
 
   const linkStyles = ({ isActive }) =>
@@ -97,6 +185,21 @@ export default function Header() {
               {link.label}
             </NavLink>
           ))}
+          {user ? (
+            <UserDropdown
+              user={user}
+              onLogout={handleLogout}
+              onNavigate={() => setMenuOpen(false)}
+            />
+          ) : (
+            <NavLink
+              to="/login"
+              className={linkStyles}
+              onClick={() => setMenuOpen(false)}
+            >
+              Login
+            </NavLink>
+          )}
         </nav>
 
         <button
@@ -134,6 +237,21 @@ export default function Header() {
                 {link.label}
               </NavLink>
             ))}
+            {user ? (
+              <UserDropdown
+                user={user}
+                onLogout={handleLogout}
+                onNavigate={() => setMenuOpen(false)}
+              />
+            ) : (
+              <NavLink
+                to="/login"
+                className={linkStyles}
+                onClick={() => setMenuOpen(false)}
+              >
+                Login
+              </NavLink>
+            )}
           </div>
         </nav>
       )}

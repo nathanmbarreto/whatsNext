@@ -9,6 +9,7 @@ import Series from "./pages/Series/Series";
 import Login from "./pages/Login/Login"
 import Sigin from "./pages/Signin/Signin"
 import Search from "./pages/Search/Search";
+import Watchlist from "./pages/Watchlist/Watchlist";
 
 
 
@@ -52,6 +53,10 @@ function App() {
             <Route
               path="/search"
               element={<Search />} />
+
+              <Route 
+              path="/watchlist" 
+              element={<Watchlist />} />
 
           </Routes>
         </main>

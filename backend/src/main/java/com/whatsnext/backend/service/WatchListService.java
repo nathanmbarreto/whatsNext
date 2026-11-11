@@ -118,5 +118,32 @@ public class WatchListService {
         WatchListItem salvo = watchListItemRepository.save(item);
         return converterParaResponse(salvo);
     }
+
+    @Transactional(readOnly = true)
+    public boolean estaNaLista(String email, Long tmdbId, String type) {
+        AppUser usuario = appUserRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Usuário não encontrado."
+                ));
+
+        String tipoMedia;
+        if ("movie".equalsIgnoreCase(type)) {
+            tipoMedia = "MOVIE";
+        } else if ("series".equalsIgnoreCase(type)) {
+            tipoMedia = "SERIES";
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Tipo de mídia inválido."
+            );
+        }
+
+        return mediaRepository.findByExternalIdAndSourceAndType(
+                        String.valueOf(tmdbId), "TMDB", tipoMedia
+                )
+                .map(media -> watchListItemRepository.existsByUser_IdAndMedia_Id(
+                        usuario.getId(), media.getId()
+                ))
+                .orElse(false);
+    }
 }
 

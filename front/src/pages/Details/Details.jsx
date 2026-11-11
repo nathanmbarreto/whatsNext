@@ -8,11 +8,16 @@ import {
   Gamepad2,
   ArrowLeft,
 } from "lucide-react";
+import { buscarUsuarioAtual } from "../../services/auth";
 import {
   getMovieDetails,
   getSeriesDetails,
 } from "../../services/tmdb";
 import Comments from "../../components/Comments/Comments";
+import {
+  adicionarDoTmdb,
+  verificarNaWatchlist,
+} from "../../services/watchlist";
 
 const TMDB_IMAGE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -21,6 +26,11 @@ export default function Details() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [addingToWatchlist, setAddingToWatchlist] = useState(false);
+  const [watchlistMessage, setWatchlistMessage] = useState("");
+  const [watchlistError, setWatchlistError] = useState("");
+  const [inWatchlist, setInWatchlist] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -29,6 +39,10 @@ export default function Details() {
       setLoading(true);
       setError("");
       setData(null);
+      setInWatchlist(false);
+      setWatchlistMessage("");
+      setWatchlistError("");
+      setCurrentUser(null);
 
       try {
         let result;
@@ -57,10 +71,28 @@ export default function Details() {
         } else {
           throw new Error("Tipo de conteúdo inválido.");
         }
+        let jaEstaNaLista = false;
+        const usuarioAtual = await buscarUsuarioAtual();
+
+
+        if (usuarioAtual && (type === "movie" || type === "series")) {
+          try {
+            jaEstaNaLista = await verificarNaWatchlist(id, type);
+          } catch (err) {
+            console.warn("Não foi possível verificar a watchlist:", err);
+          }
+        }
 
         if (!cancelled) {
           setData(result);
+          setCurrentUser(usuarioAtual);
+          setInWatchlist(jaEstaNaLista);
+
+          if (jaEstaNaLista) {
+            setWatchlistMessage("Este título já está na sua lista.");
+          }
         }
+
       } catch (err) {
         console.error("Erro ao buscar detalhes:", err);
 
@@ -75,13 +107,32 @@ export default function Details() {
         }
       }
     }
-
     fetchData();
+
 
     return () => {
       cancelled = true;
     };
   }, [type, id]);
+
+
+  async function handleAddToWatchlist() {
+    setAddingToWatchlist(true);
+    setWatchlistMessage("");
+    setWatchlistError("");
+
+    try {
+      await adicionarDoTmdb(id, type);
+      setInWatchlist(true);
+      setWatchlistMessage("Adicionado à sua lista!");
+    } catch (err) {
+      setWatchlistError(
+        err.message || "Não foi possível adicionar à sua lista."
+      );
+    } finally {
+      setAddingToWatchlist(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -121,6 +172,9 @@ export default function Details() {
     );
   }
 
+
+
+
   const isGame = type === "game";
 
   const title = isGame
@@ -146,9 +200,9 @@ export default function Details() {
   const year = isGame
     ? data.released?.slice(0, 4)
     : (type === "series"
-        ? data.first_air_date
-        : data.release_date
-      )?.slice(0, 4);
+      ? data.first_air_date
+      : data.release_date
+    )?.slice(0, 4);
 
   const genres = data.genres
     ?.map((genre) => genre.name)
@@ -160,79 +214,79 @@ export default function Details() {
 
   const details = isGame
     ? [
-        { label: "Lançamento", value: data.released },
-        {
-          label: "Desenvolvedora",
-          value: data.developers?.map((d) => d.name).join(", "),
-        },
-        { label: "Plataformas", value: platforms },
-        { label: "Metacritic", value: data.metacritic },
-      ]
+      { label: "Lançamento", value: data.released },
+      {
+        label: "Desenvolvedora",
+        value: data.developers?.map((d) => d.name).join(", "),
+      },
+      { label: "Plataformas", value: platforms },
+      { label: "Metacritic", value: data.metacritic },
+    ]
     : type === "series"
       ? [
-          {
-            label: "Primeira exibição",
-            value: data.first_air_date,
-          },
-          {
-            label: "Última exibição",
-            value: data.last_air_date,
-          },
-          {
-            label: "Número de temporadas",
-            value: data.number_of_seasons,
-          },
-          {
-            label: "Número de episódios",
-            value: data.number_of_episodes,
-          },
-          {
-            label: "Status",
-            value: data.status,
-          },
-          {
-            label: "Criadores",
-            value: data.created_by?.map((person) => person.name).join(", "),
-          },
-        ]
+        {
+          label: "Primeira exibição",
+          value: data.first_air_date,
+        },
+        {
+          label: "Última exibição",
+          value: data.last_air_date,
+        },
+        {
+          label: "Número de temporadas",
+          value: data.number_of_seasons,
+        },
+        {
+          label: "Número de episódios",
+          value: data.number_of_episodes,
+        },
+        {
+          label: "Status",
+          value: data.status,
+        },
+        {
+          label: "Criadores",
+          value: data.created_by?.map((person) => person.name).join(", "),
+        },
+      ]
       : [
-          {
-            label: "Lançamento",
-            value: data.release_date,
-          },
-          {
-            label: "Duração",
-            value: data.runtime ? `${data.runtime} minutos` : null,
-          },
-          {
-            label: "Título original",
-            value: data.original_title,
-          },
-          {
-            label: "Status",
-            value: data.status,
-          },
-          {
-            label: "Orçamento",
-            value: data.budget
-              ? new Intl.NumberFormat("pt-BR", {
-                  style: "currency",
-                  currency: "USD",
-                  maximumFractionDigits: 0,
-                }).format(data.budget)
-              : null,
-          },
-          {
-            label: "Receita",
-            value: data.revenue
-              ? new Intl.NumberFormat("pt-BR", {
-                  style: "currency",
-                  currency: "USD",
-                  maximumFractionDigits: 0,
-                }).format(data.revenue)
-              : null,
-          },
-        ];
+        {
+          label: "Lançamento",
+          value: data.release_date,
+        },
+        {
+          label: "Duração",
+          value: data.runtime ? `${data.runtime} minutos` : null,
+        },
+        {
+          label: "Título original",
+          value: data.original_title,
+        },
+        {
+          label: "Status",
+          value: data.status,
+        },
+        {
+          label: "Orçamento",
+          value: data.budget
+            ? new Intl.NumberFormat("pt-BR", {
+              style: "currency",
+              currency: "USD",
+              maximumFractionDigits: 0,
+            }).format(data.budget)
+            : null,
+        },
+        {
+          label: "Receita",
+          value: data.revenue
+            ? new Intl.NumberFormat("pt-BR", {
+              style: "currency",
+              currency: "USD",
+              maximumFractionDigits: 0,
+            }).format(data.revenue)
+            : null,
+        },
+      ];
 
   const ratingLabel = isGame ? "RAWG" : "TMDB";
   const backPath = isGame
@@ -267,9 +321,8 @@ export default function Details() {
               <img
                 src={image}
                 alt={`Imagem de ${title}`}
-                className={`w-full rounded-2xl object-cover shadow-2xl shadow-black/40 ${
-                  isGame ? "aspect-[4/3]" : "aspect-[2/3]"
-                }`}
+                className={`w-full rounded-2xl object-cover shadow-2xl shadow-black/40 ${isGame ? "aspect-[4/3]" : "aspect-[2/3]"
+                  }`}
               />
             ) : (
               <div className="flex aspect-[2/3] items-center justify-center rounded-2xl bg-[#10121A] p-4 text-center text-gray-500">
@@ -327,9 +380,15 @@ export default function Details() {
                     </p>
                     <p className="text-xs text-gray-500">
                       Nota {ratingLabel}
+
                     </p>
+
                   </div>
+
+
                 </div>
+
+
               )}
 
               {isGame && data.metacritic != null && (
@@ -344,7 +403,43 @@ export default function Details() {
                   </div>
                 </div>
               )}
+
+              {!isGame && (
+                currentUser ? (
+                  <button
+                    type="button"
+                    onClick={handleAddToWatchlist}
+                    disabled={addingToWatchlist || inWatchlist}
+                    className="rounded-xl bg-[#7657F6] px-5 py-3 font-semibold text-white transition hover:bg-[#6545E8] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {addingToWatchlist
+                      ? "Adicionando..."
+                      : inWatchlist
+                        ? "Já está na Minha Lista"
+                        : "Adicionar à Minha Lista"}
+                  </button>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="rounded-xl bg-[#7657F6] px-5 py-3 font-semibold text-white transition hover:bg-[#6545E8]"
+                  >
+                    Entre para adicionar à Minha Lista
+                  </Link>
+                )
+              )}
             </div>
+
+            {watchlistMessage && (
+              <p role="status" className="mt-3 text-sm text-green-400">
+                {watchlistMessage}
+              </p>
+            )}
+
+            {watchlistError && (
+              <p role="alert" className="mt-3 text-sm text-red-400">
+                {watchlistError}
+              </p>
+            )}
 
             {description && (
               <div className="mt-8">
@@ -387,7 +482,7 @@ export default function Details() {
             ))}
         </div>
       </section>
-      <Comments key={`${type}-${id}`} type={type} id={id}/>
+      {/* <Comments key={`${type}-${id}`} type={type} id={id} /> */}
     </main>
   );
 }

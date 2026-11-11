@@ -22,45 +22,8 @@ export default function Login() {
           </p>
         </div>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-200"
-          >
-            E-mail
-          </label>
-
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="seuemail@exemplo.com"
-            autoComplete="email"
-            required
-            className="w-full rounded-xl border border-white/10 bg-[#10121A] px-4 py-3 text-white outline-none transition placeholder:text-gray-500 focus:border-[#7657F6] focus:ring-2 focus:ring-[#7657F6]/30"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label
-            htmlFor="senha"
-            className="block text-sm font-medium text-gray-200"
-          >
-            Senha
-          </label>
-
-          <input
-            id="senha"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Digite sua senha"
-            autoComplete="current-password"
-            required
-            className="w-full rounded-xl border border-white/10 bg-[#10121A] px-4 py-3 text-white outline-none transition placeholder:text-gray-500 focus:border-[#7657F6] focus:ring-2 focus:ring-[#7657F6]/30"
-          />
-        </div>
+      
+        
 
         {erro && (
           <p
@@ -72,32 +35,16 @@ export default function Login() {
         )}
 
         <button
-          type="submit"
           className="w-full rounded-xl bg-[#7657F6] px-4 py-3 font-semibold text-white transition hover:bg-[#6545E8] focus:outline-none focus:ring-2 focus:ring-[#7657F6] focus:ring-offset-2 focus:ring-offset-[#20232E] active:scale-[0.98]"
-        >
-          Entrar
+          type="button"
+          onClick={() => {
+            window.location.href =
+              "http://localhost:8080/oauth2/authorization/google";}}>
+                Entrar com Google
         </button>
 
-        <p className="text-center text-sm text-gray-400">
-          Ainda não tem uma conta?{" "}
-          <Link
-            to="/cadastro"
-            className="font-semibold text-[#A997FF] transition hover:text-white"
-          >
-            Cadastre-se
-          </Link>
-          <p />
-          <button
-            type="button"
-            onClick={() => {
-              window.location.href =
-                "http://localhost:8080/oauth2/authorization/google";
-            }}
-          >
-            Entrar com Google
-          </button>
-        </p>
-      </form>
-    </main>
+     
+    </form>
+    </main >
   );
 }

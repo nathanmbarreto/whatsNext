@@ -1,9 +1,6 @@
 package com.whatsnext.backend.service;
 
-import com.whatsnext.backend.dto.MediaDetailsResponse;
-import com.whatsnext.backend.dto.MediaSummaryResponse;
-import com.whatsnext.backend.dto.TmdbGenre;
-import com.whatsnext.backend.dto.TmdbMovie;
+import com.whatsnext.backend.dto.*;
 import com.whatsnext.backend.entity.Genre;
 import com.whatsnext.backend.entity.Media;
 import com.whatsnext.backend.repository.GenreRepository;
@@ -263,5 +260,62 @@ public class MediaService {
             );
         }
     }
+
+    private Media preencherSerie(Media media, TmdbSeries serie) {
+        media.setExternalId(String.valueOf(serie.getId()));
+        media.setSource("TMDB");
+        media.setType("SERIES");
+        media.setTitle(serie.getName());
+        media.setOverview(serie.getOverview());
+
+        if (serie.getPoster_path() == null) {
+            media.setPosterUrl(null);
+        } else {
+            media.setPosterUrl(
+                    "https://image.tmdb.org/t/p/w500" + serie.getPoster_path()
+            );
+        }
+
+        if (serie.getFirst_air_date() == null
+                || serie.getFirst_air_date().isBlank()) {
+            media.setReleaseDate(null);
+        } else {
+            media.setReleaseDate(LocalDate.parse(serie.getFirst_air_date()));
+        }
+
+        media.setLastSyncedAt(LocalDateTime.now());
+
+        Set<Genre> generos = new HashSet<>();
+        if (serie.getGenres() != null) {
+            for (TmdbGenre tmdbGenre : serie.getGenres()) {
+                generos.add(buscarOuCriar(tmdbGenre));
+            }
+        }
+        media.setGenres(generos);
+
+        return media;
+    }
+
+
+    @Transactional
+    public Media salvarSerieDoTmdb(Long tmdbId) {
+        Media media = mediaRepository
+                .findByExternalIdAndSource(String.valueOf(tmdbId), "TMDB")
+                .orElseGet(Media::new);
+
+        TmdbSeries serie;
+        try {
+            serie = tmdbService.consultarDetalhesSerie(tmdbId);
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Série não encontrada no TMDB."
+            );
+        }
+
+        preencherSerie(media, serie);
+        return mediaRepository.save(media);
+    }
+
 
 }
