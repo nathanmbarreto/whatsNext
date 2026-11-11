@@ -50,5 +50,11 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
             String title, String type, Long genreId, Pageable pageable
     );
 
+    Optional<Media> findByExternalIdAndSourceAndType(
+            String externalId,
+            String source,
+            String type
+    );
+
 }
 

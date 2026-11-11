@@ -95,4 +95,6 @@ public class TmdbService {
                 .retrieve()
                 .body(TmdbSeries.class);
     }
+
+
 }

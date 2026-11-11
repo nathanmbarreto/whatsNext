@@ -130,4 +130,9 @@ public class MediaController {
 
         return Sort.by(direcao, campo);
     }
+
+    @PostMapping("/tmdb/series/{tmdbId}")
+    public Media importarSerieDoTmdb(@PathVariable Long tmdbId) {
+        return mediaService.salvarSerieDoTmdb(tmdbId);
+    }
 }

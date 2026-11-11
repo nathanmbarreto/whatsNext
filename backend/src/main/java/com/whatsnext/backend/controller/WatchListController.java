@@ -118,4 +118,15 @@ public class WatchListController {
             @PathVariable("itemId") Long itemId) {
         return watchListService.atualizarStatus(authentication.getName(), itemId, request.getStatus());
     }
+
+    @GetMapping("/contains")
+    public boolean verificarSeEstaNaLista(
+            @RequestParam Long tmdbId,
+            @RequestParam String type,
+            Authentication authentication
+    ) {
+        return watchListService.estaNaLista(
+                authentication.getName(), tmdbId, type
+        );
+    }
 }
