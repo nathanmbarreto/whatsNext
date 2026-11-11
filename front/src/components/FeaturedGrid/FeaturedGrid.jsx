@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   getPopularMovies,
-  discoverSeries,
+  getPopularSeries,
 } from "../../services/tmdb";
 
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
@@ -33,17 +33,15 @@ export default function FeaturedGrid({ type = "all" }) {
               poster_path: item.posterPath,
               mediaType: "movie",
               displayTitle: item.title,
-              displayDate: null,
+              displayDate: item.releaseDate,
+              vote_average: item.voteAverage,
             }))
           );
         }
 
 
         if (type === "series" || type === "all") {
-          const data = await discoverSeries({
-            sort_by: "popularity.desc",
-            page: "1",
-          });
+          const data = await getPopularSeries(1)
 
           results.push(
             ...(data.results || []).map((item) => ({

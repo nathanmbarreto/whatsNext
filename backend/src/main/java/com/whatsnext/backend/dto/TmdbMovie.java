@@ -11,9 +11,15 @@ public class TmdbMovie {
     private String release_date;
     private String poster_path;
     private List<TmdbGenre> genres;
+    private Integer runtime;
+    private String status;
+    private Double popularity;
 
     @JsonProperty("vote_average")
     private Double notaTmdb;
+
+    @JsonProperty("original_title")
+    private String originalTitle;
 
 
     public TmdbMovie() {
@@ -73,5 +79,37 @@ public class TmdbMovie {
 
     public void setNotaTmdb(Double notaTmdb) {
         this.notaTmdb = notaTmdb;
+    }
+
+    public Integer getRuntime() {
+        return runtime;
+    }
+
+    public void setRuntime(Integer runtime) {
+        this.runtime = runtime;
+    }
+
+    public String getOriginalTitle() {
+        return originalTitle;
+    }
+
+    public void setOriginalTitle(String originalTitle) {
+        this.originalTitle = originalTitle;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Double getPopularity() {
+        return popularity;
+    }
+
+    public void setPopularity(Double popularity) {
+        this.popularity = popularity;
     }
 }

@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { discoverMovies } from "../../services/tmdb";
+import { getPopularMovies } from "../../services/tmdb";
 import FeaturedGrid from "../../components/FeaturedGrid/FeaturedGrid";
 import GamesGrid from "../../components/GamesGrid/GamesGrid";
 import { NavLink } from "react-router-dom";
@@ -20,23 +20,22 @@ export default function Home() {
         setLoading(true);
         setError("");
 
-        const data = await discoverMovies({
-          sort_by: "popularity.desc",
-          include_adult: "false",
-          page: "1",
-        });
+        const data = await getPopularMovies(1);
 
         // Seleciona o primeiro filme que tenha cartaz.
-        const movie = (data.results || []).find(
-          (item) => item.poster_path
-        );
+        const movie = data.find((item) => item.posterPath);
 
         if (!movie) {
           throw new Error("Nenhum filme em destaque foi encontrado.");
         }
 
         if (!cancelled) {
-          setFeatured(movie);
+          setFeatured({
+            ...movie,
+            poster_path: movie.posterPath,
+            release_date: movie.releaseDate,
+            vote_average: movie.voteAverage,
+          });
         }
       } catch (err) {
         if (!cancelled) {
@@ -129,7 +128,7 @@ export default function Home() {
                 <span className="text-sm text-gray-400">
                   TMDB
                 </span>
-              </span> 
+              </span>
             </div>
           </div>
 
