@@ -8,6 +8,7 @@ import Movies from "./pages/Movies/Movies"
 import Series from "./pages/Series/Series";
 import Login from "./pages/Login/Login"
 import Sigin from "./pages/Signin/Signin"
+import Search from "./pages/Search/Search";
 
 
 
@@ -24,29 +25,34 @@ function App() {
               path="/movies"
               element={<Movies />}
             />
-            <Route 
-            path="/series"
-            element={<Series />}
+            <Route
+              path="/series"
+              element={<Series />}
             />
-         
+
             {/* <Route
               path="/games"
               element={<Games />}
             /> */}
+            
             <Route
               path="/detalhes/:type/:id"
               element={<Details />}
             />
 
-             <Route
+            <Route
               path="/login"
               element={<Login />}
             />
-         <Route
+            <Route
               path="/cadastro"
               element={<Sigin />}
             />
-            
+
+            <Route
+              path="/search"
+              element={<Search />} />
+
           </Routes>
         </main>
 

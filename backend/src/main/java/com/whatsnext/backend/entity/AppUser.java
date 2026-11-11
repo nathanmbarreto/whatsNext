@@ -16,8 +16,11 @@ public class AppUser {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String passwordHash;
+
+    @Column(unique = true, length = 255)
+    private String googleId;
 
     public String getPasswordHash() {
         return passwordHash;
@@ -54,5 +57,13 @@ public class AppUser {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getGoogleId() {
+        return googleId;
+    }
+
+    public void setGoogleId(String googleId) {
+        this.googleId = googleId;
     }
 }

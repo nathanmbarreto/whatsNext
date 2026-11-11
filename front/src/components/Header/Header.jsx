@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const links = [
   { label: "Início", to: "/", end: true },
@@ -12,31 +12,80 @@ const links = [
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchType, setSearchType] = useState("movie");
+
+  function handleSearch(event) {
+    event.preventDefault();
+
+    const query = searchQuery.trim();
+    if (!query) return;
+
+    const params = new URLSearchParams({
+      type: searchType,
+      query,
+    });
+
+    navigate(`/search?${params.toString()}`);
+    setMenuOpen(false);
+  }
+
+
+
 
   const linkStyles = ({ isActive }) =>
-    `rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-      isActive
-        ? "bg-[#7657F6] text-white"
-        : "text-gray-300 hover:bg-white/5 hover:text-white"
+    `rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200 ${isActive
+      ? "bg-[#7657F6] text-white"
+      : "text-gray-300 hover:bg-white/5 hover:text-white"
     }`;
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#10121A]/95 backdrop-blur-md">
-      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
+      <div className="mx-auto grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 px-4 py-3 sm:px-6 lg:min-h-[72px] lg:max-w-7xl lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-x-6 lg:px-8 lg:py-0">
         <NavLink
           to="/"
           aria-label="What's Next? - Início"
-          className="shrink-0 text-xl font-extrabold tracking-tight text-white sm:text-2xl"
-          onClick={() => setMenuOpen(true)}
+          className="col-start-1 row-start-1 shrink-0 text-xl font-extrabold tracking-tight text-white sm:text-2xl"
+          onClick={() => setMenuOpen(false)}
         >
           What's <span className="text-[#7657F6]">Next?</span>
         </NavLink>
 
-        {/* Menu desktop */}
+        <form
+          onSubmit={handleSearch}
+          className="col-span-2 row-start-2 flex min-w-0 w-full gap-2 border-t border-white/10 pt-3 lg:col-span-1 lg:col-start-2 lg:row-start-1 lg:mx-auto lg:max-w-2xl lg:border-t-0 lg:pt-0"
+        >
+          <select
+            value={searchType}
+            onChange={(event) => setSearchType(event.target.value)}
+            aria-label="Tipo de conteúdo"
+            className="w-24 shrink-0 rounded-lg bg-[#20232E] px-2 py-2 text-white sm:w-auto sm:px-3"
+          >
+            <option value="movie">Filmes</option>
+            <option value="series">Séries</option>
+          </select>
+
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Buscar título..."
+            aria-label="Buscar título"
+            className="min-w-0 flex-1 rounded-lg bg-[#20232E] px-3 py-2 text-white"
+          />
+
+          <button
+            type="submit"
+            className="shrink-0 rounded-lg bg-[#7657F6] px-3 py-2 font-medium text-white sm:px-4"
+          >
+            Buscar
+          </button>
+        </form>
+
         <nav
           aria-label="Navegação principal"
-          className="hidden items-center gap-2 md:flex"
+          className="hidden items-center gap-2 md:col-start-2 md:row-start-1 md:flex lg:col-start-3"
         >
           {links.map((link) => (
             <NavLink
@@ -50,10 +99,9 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Botão mobile */}
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-lg p-2 text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-[#7657F6] md:hidden"
+          className="col-start-2 row-start-1 inline-flex items-center justify-center rounded-lg p-2 text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-[#7657F6] md:hidden"
           aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"

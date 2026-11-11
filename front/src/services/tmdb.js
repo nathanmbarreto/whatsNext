@@ -1,39 +1,5 @@
 
-const BASE_URL = "https://api.themoviedb.org/3";
-
 const BACKEND_URL = "http://localhost:8080/api/tmdb";
-
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY
-
-async function tmdbFetch(endpoint, params = {}) {
-  if (!API_KEY) {
-    throw new Error("Configure VITE_TMDB_API_KEY no arquivo .env.");
-  }
-
-  const searchParams = new URLSearchParams({
-    api_key: API_KEY,
-    language: "pt-BR",
-    ...params,
-  });
-
-  const response = await fetch(
-    `${BASE_URL}${endpoint}?${searchParams}`
-  );
-
-  if (!response.ok) {
-    throw new Error(`Erro na TMDB: ${response.status}`);
-  }
-
-  return response.json();
-}
-
-export function discoverMovies(params = {}) {
-  return tmdbFetch("/discover/movie", params);
-}
-
-export function discoverSeries(params = {}) {
-  return tmdbFetch("/discover/tv", params);
-}
 
 export async function searchMovies(query, page = 1) {
   const searchParams = new URLSearchParams({
@@ -52,11 +18,20 @@ export async function searchMovies(query, page = 1) {
 
 }
 
-export function searchSeries(query) {
-  return tmdbFetch("/search/tv", {
+export async function searchSeries(query, page = 1) {
+  const searchParams = new URLSearchParams({
     query,
-    include_adult: "false",
-  });
+    page: String(page),
+  })
+  const response = await fetch(
+    `${BACKEND_URL}/series/search?${searchParams.toString()}`
+  )
+
+  if(!response.ok){
+    throw new Error(`Erro no backend: ${response.status}`)
+  }
+
+  return response.json()
 }
 
 export async function getMovieDetails(id) {
@@ -73,19 +48,20 @@ export async function getMovieDetails(id) {
     poster_path: movie.posterPath,
     release_date: movie.releaseDate,
     vote_average: movie.notaTmdb,
+    original_title: movie.originalTitle,
   };
 }
 
-export function getSeriesDetails(id) {
-  return tmdbFetch(`/tv/${id}`);
-}
+export async function getSeriesDetails(id) {
+  const response = await fetch(`${BACKEND_URL}/series/${id}`)
+  if (!response.ok) {
+    throw new Error(`Erro no backend: ${response.status}`)
+  }
 
-export function getMovieGenres() {
-  return tmdbFetch("/genre/movie/list");
-}
+  const serie = await response.json()
 
-export function getSeriesGenres() {
-  return tmdbFetch("/genre/tv/list");
+  return serie;
+
 }
 
 export async function getPopularMovies(page = 1) {
@@ -94,8 +70,20 @@ export async function getPopularMovies(page = 1) {
   )
 
   if (!response.ok) {
-    throw new Error(`Errp mp bacemd: ${response.status}`);
+    throw new Error(`Erro no backend: ${response.status}`);
 
   }
   return response.json();
+}
+
+
+export async function getPopularSeries(page = 1) {
+  const response = await fetch(
+    `${BACKEND_URL}/series/popular?page=${page}`
+  )
+  if (!response.ok) {
+    throw new Error(`Erro no backend: ${response.status}`)
+  }
+  return response.json()
+
 }

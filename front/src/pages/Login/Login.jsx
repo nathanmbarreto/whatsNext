@@ -2,15 +2,15 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function Login() {
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [erro, setErro] = useState('')
-    
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [erro, setErro] = useState('')
+
   return (
     <main className="flex min-h-[calc(100vh-80px)] items-center justify-center bg-[#10121A] px-4 py-12">
       <form
         className="w-full max-w-md space-y-6 rounded-2xl border border-white/10 bg-[#20232E] p-8 shadow-2xl sm:p-10"
-        
+
       >
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-bold tracking-tight text-white">
@@ -86,6 +86,16 @@ export default function Login() {
           >
             Cadastre-se
           </Link>
+          <p />
+          <button
+            type="button"
+            onClick={() => {
+              window.location.href =
+                "http://localhost:8080/oauth2/authorization/google";
+            }}
+          >
+            Entrar com Google
+          </button>
         </p>
       </form>
     </main>

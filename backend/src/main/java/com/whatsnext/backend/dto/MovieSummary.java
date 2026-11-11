@@ -5,12 +5,22 @@ public class MovieSummary {
     private String title;
     private String posterPath;
     private String posterUrl;
+    private String overview;
+    private String releaseDate;
+    private Double voteAverage;
+    private Double popularity;
 
-    public MovieSummary(Long id, String title, String posterPath) {
+    public MovieSummary(Long id, String title, String posterPath,
+                        Double voteAverage, String releaseDate, String overview,
+                        Double popularity) {
         this.id = id;
         this.title = title;
         this.posterPath = posterPath;
         this.posterUrl = "https://image.tmdb.org/t/p/w500";
+        this.voteAverage = voteAverage;
+        this.releaseDate = releaseDate;
+        this.overview = overview;
+        this.popularity = popularity;
     }
 
     public Long getId() {
@@ -42,5 +52,41 @@ public class MovieSummary {
 
     public void setPosterPath(String posterPath) {
         this.posterPath = posterPath;
+    }
+
+    public String getOverview() {
+        return overview;
+    }
+
+    public void setOverview(String overview) {
+        this.overview = overview;
+    }
+
+    public String getReleaseDate() {
+        return releaseDate;
+    }
+
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public Double getVoteAverage() {
+        return voteAverage;
+    }
+
+    public void setVoteAverage(Double voteAverage) {
+        this.voteAverage = voteAverage;
+    }
+
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
+    }
+
+    public Double getPopularity() {
+        return popularity;
+    }
+
+    public void setPopularity(Double popularity) {
+        this.popularity = popularity;
     }
 }

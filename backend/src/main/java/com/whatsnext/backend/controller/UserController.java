@@ -3,10 +3,8 @@ package com.whatsnext.backend.controller;
 import com.whatsnext.backend.dto.UserRegistrationRequest;
 import com.whatsnext.backend.dto.UserResponse;
 import com.whatsnext.backend.service.AppUserService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -20,5 +18,10 @@ public class UserController {
     @PostMapping("/register")
     public UserResponse registrar(@RequestBody UserRegistrationRequest request){
         return appUserService.registrar(request);
+    }
+
+    @GetMapping("/me")
+    public UserResponse usuarioAtual(Authentication authentication) {
+        return appUserService.buscarUsuarioAtual(authentication.getName());
     }
 }
