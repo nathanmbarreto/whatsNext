@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { getPopularMovies } from "../../services/tmdb";
 import FeaturedGrid from "../../components/FeaturedGrid/FeaturedGrid";
-import GamesGrid from "../../components/GamesGrid/GamesGrid";
 import { NavLink } from "react-router-dom";
 
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w780";
