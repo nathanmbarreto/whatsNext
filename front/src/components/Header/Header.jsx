@@ -9,7 +9,6 @@ const links = [
   { label: "Início", to: "/", end: true },
   { label: "Filmes", to: "/movies" },
   { label: "Séries", to: "/series" },
-  // { label: "Jogos", to: "/games" },
 ];
 
 

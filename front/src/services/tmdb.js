@@ -1,5 +1,5 @@
 
-const BACKEND_URL =  import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+const BACKEND_URL =  import.meta.env.VITE_BACKEND_URL;
 const TMDB_URL = `${BACKEND_URL}/api/tmdb`
 console.log("BACKEND_URL compilado:", BACKEND_URL);
 

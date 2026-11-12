@@ -1,5 +1,5 @@
 const BACKEND_URL =
-  import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+  import.meta.env.VITE_BACKEND_URL;
 
 export async function sair() {
   const csrfResponse = await fetch(`${BACKEND_URL}/api/csrf`, {
