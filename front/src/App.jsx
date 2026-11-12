@@ -31,10 +31,6 @@ function App() {
               element={<Series />}
             />
 
-            {/* <Route
-              path="/games"
-              element={<Games />}
-            /> */}
             
             <Route
               path="/detalhes/:type/:id"
