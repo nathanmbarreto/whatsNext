@@ -1,4 +1,5 @@
-const BACKEND_URL = "http://localhost:8080";
+const BACKEND_URL =
+  import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 export async function sair() {
   const csrfResponse = await fetch(`${BACKEND_URL}/api/csrf`, {
@@ -26,7 +27,7 @@ export async function sair() {
 
 export async function buscarUsuarioAtual() {
   try {
-    const response = await fetch("http://localhost:8080/api/users/me", {
+    const response = await fetch(`${BACKEND_URL}/api/users/me`, {
       credentials: "include",
     });
 

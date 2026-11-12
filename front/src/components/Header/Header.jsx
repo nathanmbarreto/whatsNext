@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { sair } from "../../services/auth";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+
 const links = [
   { label: "Início", to: "/", end: true },
   { label: "Filmes", to: "/movies" },
@@ -101,7 +103,7 @@ export default function Header() {
     async function carregarUsuario() {
       try {
         const response = await fetch(
-          "http://localhost:8080/api/users/me",
+          `${BACKEND_URL}/api/users/me`,
           { credentials: "include" }
         );
 

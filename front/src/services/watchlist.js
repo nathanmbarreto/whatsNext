@@ -1,5 +1,7 @@
-const BASE_URL = "http://localhost:8080/api/watchlist";
-const MEDIA_BASE_URL = "http://localhost:8080/api/medias";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+const WATCH_LIST_URL = `${BASE_URL}/api/watchlist`
+
+const MEDIA_BASE_URL = `${BASE_URL}/api/medias`;
 
 export async function getWatchlist({ status, page = 0, size = 10 } = {}) {
   const params = new URLSearchParams({
@@ -11,9 +13,9 @@ export async function getWatchlist({ status, page = 0, size = 10 } = {}) {
     params.set("status", status);
   }
 
-  const response = await fetch(`${BASE_URL}?${params.toString()}`, {
-    credentials: "include",
-  });
+ const response = await fetch(`${WATCH_LIST_URL}?${params.toString()}`, {
+  credentials: "include",
+});
 
   const contentType = response.headers.get("content-type") || "";
 
@@ -25,7 +27,7 @@ export async function getWatchlist({ status, page = 0, size = 10 } = {}) {
 }
 
 async function buscarTokenCsrf() {
-  const response = await fetch("http://localhost:8080/api/csrf", {
+  const response = await fetch(`${BASE_URL}/api/csrf`, {
     credentials: "include",
   });
 
@@ -40,7 +42,7 @@ async function enviarAlteracao(
   caminho,
   method,
   body,
-  baseUrl = BASE_URL
+  baseUrl = WATCH_LIST_URL
 ) {
   const csrf = await buscarTokenCsrf();
 
@@ -112,7 +114,7 @@ export async function verificarNaWatchlist(tmdbId, type) {
   });
 
   const response = await fetch(
-    `${BASE_URL}/contains?${params.toString()}`,
+    `${WATCH_LIST_URL}/contains?${params.toString()}`,
     { credentials: "include" }
   );
 

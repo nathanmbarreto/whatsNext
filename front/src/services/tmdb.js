@@ -1,5 +1,6 @@
 
-const BACKEND_URL = "http://localhost:8080/api/tmdb";
+const BACKEND_URL =  import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+const TMDB_URL = `${BACKEND_URL}/api/tmdb`
 
 export async function searchMovies(query, page = 1) {
   const searchParams = new URLSearchParams({
@@ -7,7 +8,7 @@ export async function searchMovies(query, page = 1) {
     page: String(page),
   })
   const response = await fetch(
-    `${BACKEND_URL}/search?${searchParams.toString()}`
+    `${TMDB_URL}/search?${searchParams.toString()}`
   )
 
   if (!response.ok) {
@@ -24,7 +25,7 @@ export async function searchSeries(query, page = 1) {
     page: String(page),
   })
   const response = await fetch(
-    `${BACKEND_URL}/series/search?${searchParams.toString()}`
+    `${TMDB_URL}/series/search?${searchParams.toString()}`
   )
 
   if(!response.ok){
@@ -35,7 +36,7 @@ export async function searchSeries(query, page = 1) {
 }
 
 export async function getMovieDetails(id) {
-  const response = await fetch(`${BACKEND_URL}/${id}`);
+  const response = await fetch(`${TMDB_URL}/${id}`);
 
   if (!response.ok) {
     throw new Error(`Erro no backend: ${response.status}`);
@@ -53,7 +54,7 @@ export async function getMovieDetails(id) {
 }
 
 export async function getSeriesDetails(id) {
-  const response = await fetch(`${BACKEND_URL}/series/${id}`)
+  const response = await fetch(`${TMDB_URL}/series/${id}`)
   if (!response.ok) {
     throw new Error(`Erro no backend: ${response.status}`)
   }
@@ -66,7 +67,7 @@ export async function getSeriesDetails(id) {
 
 export async function getPopularMovies(page = 1) {
   const response = await fetch(
-    `${BACKEND_URL}/popular?page=${page}`
+    `${TMDB_URL}/popular?page=${page}`
   )
 
   if (!response.ok) {
@@ -79,7 +80,7 @@ export async function getPopularMovies(page = 1) {
 
 export async function getPopularSeries(page = 1) {
   const response = await fetch(
-    `${BACKEND_URL}/series/popular?page=${page}`
+    `${TMDB_URL}/series/popular?page=${page}`
   )
   if (!response.ok) {
     throw new Error(`Erro no backend: ${response.status}`)

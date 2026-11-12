@@ -1,10 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [erro, setErro] = useState('')
 
   return (
     <main className="flex min-h-[calc(100vh-80px)] items-center justify-center bg-[#10121A] px-4 py-12">
@@ -20,26 +16,13 @@ export default function Login() {
           <p className="text-sm text-gray-400">
             Entre na sua conta para continuar descobrindo o que vem por aí.
           </p>
-        </div>
-
-      
-        
-
-        {erro && (
-          <p
-            role="alert"
-            className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400"
-          >
-            {erro}
-          </p>
-        )}
-
+        </div>        
         <button
           className="w-full rounded-xl bg-[#7657F6] px-4 py-3 font-semibold text-white transition hover:bg-[#6545E8] focus:outline-none focus:ring-2 focus:ring-[#7657F6] focus:ring-offset-2 focus:ring-offset-[#20232E] active:scale-[0.98]"
           type="button"
           onClick={() => {
             window.location.href =
-              "http://localhost:8080/oauth2/authorization/google";}}>
+              `${BACKEND_URL}/oauth2/authorization/google`;}}>
                 Entrar com Google
         </button>
 
