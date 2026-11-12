@@ -73,7 +73,7 @@ export default function Home() {
         <p className="mt-2 text-gray-400">{error}</p>
 
         <FeaturedGrid />
-        <GamesGrid page={1} pageSize={5} />
+  
       </section>
     );
   }
@@ -148,7 +148,6 @@ export default function Home() {
       </section>
 
       <FeaturedGrid />
-      {/* <GamesGrid page={1} pageSize={5} period="recent" /> */}
     </>
   );
 }
